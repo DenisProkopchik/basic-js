@@ -1,55 +1,40 @@
 const CustomError = require("../extensions/custom-error");
 
-module.exports = function transform(/*arr*/) {
-  throw new CustomError('Not implemented');
+module.exports = function transform(arr) {
+  //throw new CustomError('Not implemented');
   // remove line with error and write your code here
-  if (!Array.isArray(arr)) {
-    return console.error(e);
-  }
-  let resultArr = arr.concat();
-  let discardNext = '--discard-next';
-  let discardPrev = '--discard-prev';
-  let doubleNext = '--double-next';
-  let doublePrev = '--double-prev';
-
-  resultArr.forEach((item, index, array) => {
-    if (item === discardNext) {
-      if (index === (array.length - 1)) {
-        array.splice(index, 1);
-      } else {
-        (array[index + 2] === doublePrev || array[index + 2] === discardPrev) ? array.splice((index + 2), 1) : null;
-        array.splice(index, 2);
-      }
-
-
-    } else if (item === discardPrev) {
-      if (index === 0) {
-        array.splice(index, 1);
-      } else {
-        array.splice((index - 1), 2);
-      }
-
-    } else if (item === doubleNext) {
-      if (index === (array.length - 1)) {
-        array.splice(index, 1);
-      } else {
-        array.splice(index, 1, array[(index + 1)]);
-      }
-
-    } else if (item === doublePrev) {
-      if (index === 0) {
-        array.splice(index, 1);
-      } else {
-        array.splice(index, 1, array[index - 1]);
-      }
-
+  if (!Array.isArray(arr)) throw Error('Param is not array')
+  let flagDiscard = false
+  return arr.map((item, index, array) => {
+    if (flagDiscard) {
+      flagDiscard = false
+      return '';
     }
+    if (index > 0) {
+      if (array[index] === '--double-prev') {
+        if (index > 1 && array[index - 2] === '--discard-next') return ''
+        return array[index - 1]
+      }
+    }
+    if (index < array.length - 1) {
 
-  });
-
-  if (resultArr.length === 1) {
-    (resultArr[0] === discardNext || resultArr[0] === discardPrev || resultArr[0] === doubleNext || resultArr[0] === doublePrev) ? resultArr = [] : resultArr;
-  }
-
-  return resultArr;
+      if (array[index + 1] === '--discard-prev') {
+        return '';
+      }
+      if (array[index] === '--discard-next') {
+        flagDiscard = true;
+      }
+      if (array[index] === '--double-next') {
+        return array[index + 1]
+      }
+    }
+    if (item === '--double-prev' || item === '--discard-prev' || item === '--discard-next') {
+      return '';
+    }
+    if (item === '--double-next') {
+      return ''
+    }
+    return item
+  }).filter(item => item !== '')
 };
+

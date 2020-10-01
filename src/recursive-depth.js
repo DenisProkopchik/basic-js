@@ -9,9 +9,7 @@ module.exports = class DepthCalculator {
       ++result;
       arr = arr.flat();
       return this.calculateDepth(arr, result);
-
     } else {
-
       return result;
     }
   }
